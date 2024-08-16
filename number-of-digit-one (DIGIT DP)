@@ -1,0 +1,43 @@
+https://leetcode.com/problems/number-of-digit-one/
+
+
+class Solution {
+public:
+    //yha pr 3d dp banaenge
+    //indx - 10^9 + tight ki 2 size t/f then cnt k0 size of number
+    //10^9 main 12 digits 
+    int dp[12][2][12];
+
+    int solve(string &ri_range, int indx, int tight, int cnt){
+        //base case
+        if(indx == ri_range.size()) return cnt;
+        //memoise
+        if(dp[indx][tight][cnt] != -1) return dp[indx][tight][cnt];
+        //rec relation
+        //check if tight is true so restricted jis digit pr hain bas wahi max limit
+        int limit = (tight == 1 ? ri_range[indx]-'0' : 9);
+        //start filling
+        int ans = 0;
+        for(int i = 0; i<=limit; i++){
+            int updateCnt = cnt + (i==1 ? 1 : 0);
+            //tight ke lie & kia ki false hain toh chlo true hain toh 
+            //agle to check karo ki same ele hain ya nahi
+            ans += solve(ri_range, indx+1, (tight & (i == ri_range[indx]-'0')), updateCnt);
+        }
+        return dp[indx][tight][cnt] = ans;
+    }
+
+    int countDigitOne(int n) {
+        /*this is a digit dp problem
+        concept is ab 0 se 13 tk sb number ka one dekhna hain
+        -- two dig number banega theres a thing called tight
+        which represent restrictions ki agr 0-9 digits ahin aur
+        tumne pehle main 1 likhdia toh last main 0-3 hi aa skta hain sirf
+        agr pehle kuch bhi hain toh aage bharte waqt sochne ki 
+        zroorat nahi pr ek bhari aage restricted manner main fill
+        */
+        string rightrange = to_string(n);
+        memset(dp, -1, sizeof(dp));
+        return solve(rightrange, 0, 1, 0);
+    }
+};
