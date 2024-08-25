@@ -1,0 +1,41 @@
+#include<bits/stdc++.h>
+#include <iostream>
+#define ll long long
+using namespace std;
+
+ll dp[20][2][4]; //4 because not more than 3 and it stores cnt
+
+int solve(string num, ll indx, ll tight, ll cnt){
+    if(indx == num.size()) return 1;
+    
+    if(dp[indx][tight][cnt] != -1) return dp[indx][tight][cnt];
+    
+    int limit = (tight == 1 ? num[indx]-'0' : 9);
+    int ans = 0;
+    for(int i = 0; i<=limit; i++){
+        int updateCnt = cnt + (i != 0 ? 1 : 0);
+        if(updateCnt <= 3) ans += solve(num, indx+1, (tight & (i == num[indx]-'0')), updateCnt);
+    }
+    
+    return dp[indx][tight][cnt] = ans; 
+}
+
+int main()
+{
+    //no more than 3 non-zero digits
+    ll t;
+    cin>>t;
+    while(t--){
+        ll l,r;
+        cin>>l>>r;
+        memset(dp, -1, sizeof(dp));
+        string ri = to_string(r);
+        ll rightrange = solve(ri, 0, 1, 0);
+        memset(dp, -1, sizeof(dp));
+        string li = to_string(l);
+        ll leftrange = solve(li, 0, 1, 0);
+        
+        cout<<rightrange - leftrange<<endl;  
+       
+    }
+}
