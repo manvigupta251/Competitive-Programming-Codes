@@ -1,0 +1,60 @@
+https://leetcode.com/problems/number-of-beautiful-integers-in-the-range/description/
+
+class Solution {
+public:
+    //dp-> indx tight evendigitcnt odddigitcnt remainder
+    int dp[12][2][12][12][21];
+    //high<=10^9, tight t/f, odd/even-> if all odd/even so cnt waha tk jaega, 
+    //21-> bec max rem can be k-1 and k be max of 20 so max rem can be 19 so for safe side we take 21
+
+    int solve(string str, int indx, int tight, int evencnt, int oddcnt, int rem, int allzero, int k){
+        //in parameter to calc odd and even dig cnt we need to maintain bool allzero because 009 
+        //will give 2 even 1 odd jbki its 1 odd but in case for divisible we dont need all zero bec 
+        //when we will do 10*rem if rem 0 so automatically everything will be zero so no need to maintain
+        if(indx == str.size()){
+            return (oddcnt - evencnt == 0 && rem == 0);
+        }
+
+        if(dp[indx][tight][evencnt][oddcnt][rem] != -1) return dp[indx][tight][evencnt][oddcnt][rem];
+
+        int limit = (tight == 1) ? str[indx]-'0' : 9;
+        int ans = 0;
+        for(int i = 0; i<=limit; i++){
+            int newtight = (tight & (str[indx]-'0' == i));
+            int newrem = ((10 * rem) + i) % k;
+            int allnewzero = allzero && (i==0);
+            //this means prev all zeros and new digit is also so remain true else false
+            if(i % 2 == 0){
+                ans += solve(str, indx+1, newtight, allnewzero ? evencnt : evencnt+1, oddcnt, newrem, allnewzero, k);
+            }
+            else{
+                ans += solve(str, indx+1, newtight, evencnt, oddcnt+1, newrem, allnewzero, k);
+            }
+        }
+        return dp[indx][tight][evencnt][oddcnt][rem] = ans;
+    }
+
+    int numberOfBeautifulIntegers(int low, int high, int k) {
+        memset(dp, -1, sizeof(dp));
+        string highr = to_string(high);
+        int hrange = solve(highr, 0, 1, 0, 0, 0, 1, k);
+        memset(dp, -1, sizeof(dp));
+        string lowr = to_string(low-1);
+        int lrange = solve(lowr, 0, 1, 0, 0, 0, 1, k);
+
+        return hrange - lrange;
+    }
+};
+       
+        
+       
+       
+           
+           
+           
+           
+                
+            
+        
+    
+   
