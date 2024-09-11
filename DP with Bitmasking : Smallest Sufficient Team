@@ -1,0 +1,67 @@
+Problem Link:  https://leetcode.com/problems/smallest-sufficient-team/description/
+
+
+class Solution {
+public:
+    /*what makes this ques different is ki agr normal approach use ki toh memory and time because har skill ke lie loop se check ki all covered or not so to check this we make bitmask both of - people array ke har element ka and and also target which will be bitmask of req_skills ka then we will traverse in ppl and follow dp approach of pick and not pick if we pick we upadate mask by taking | bitwise OR and check minimum leke ho jaye toh*/
+    int n;
+    int m;
+    int target_mask;
+    vector<int> result;
+    vector<vector<int>> t;
+    void solve(vector<int> bitspeople, int i, vector<int> &temp, int mask){
+        if(bitspeople.size() == i){
+            if(target_mask == mask){
+                //now we have find all the skills now check minimum
+                if(result.size()==0 || result.size() >= temp.size()){
+                    result = temp;
+                }
+            }
+            return;
+        }
+
+        if(t[i][mask] != -1) {
+            if(t[i][mask] <= temp.size())
+               return ; 
+        }
+
+        //pruning little optimised code
+        if(result.size() != 0 && temp.size() >= result.size()) return; 
+
+        //skip
+        solve(bitspeople, i+1, temp, mask);
+        //take
+        if((mask|bitspeople[i]) != mask){
+            temp.push_back(i);
+            solve(bitspeople, i+1, temp, mask | bitspeople[i]);
+            temp.pop_back();
+             t[i][mask] = (temp.size() != 0 ) ? temp.size() : -1;
+        }
+    }
+
+    vector<int> smallestSufficientTeam(vector<string>& req_skills, vector<vector<string>>& people) {
+        n = req_skills.size();
+        m = people.size();
+        map<string, int> mp;
+        for(int i = 0; i<n; i++){
+            mp[req_skills[i]]=i;
+        }
+
+        //represent each person by a single bitmasked number
+        vector<int> people_skill;
+        for(auto v: people){
+            int skillBit = 0;
+            for(auto bit: v){
+                skillBit |= 1 << mp[bit];
+            }
+            people_skill.push_back(skillBit);
+        }
+        //now i have vector jaha sb bit mask ban gaye ab bas dp lagao
+        target_mask = pow(2, n) - 1;
+        t.resize(62, vector<int>(target_mask+1, -1));
+        vector<int> temp; //jo final skills store karega jiske size se min pata chlega
+        solve(people_skill, 0, temp, 0);
+        return result;
+        
+    }
+};
